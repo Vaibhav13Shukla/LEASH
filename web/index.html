@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="LEASH — Autonomy Error Budget Gateway. Observability as a control input, powered by SigNoz." />
+    <title>LEASH · Autonomy is earned</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <!-- Film-grain noise overlay -->
+    <div class="grain-overlay" aria-hidden="true"></div>
+
+    <!-- Demotion Revoked Banner (Hidden by default, slides down on demotion) -->
+    <div id="revoked-banner" class="revoked-banner" aria-live="assertive" hidden>
+      <div class="banner-inner">
+        <span class="banner-tag">PERMISSION REVOKED</span>
+        <span class="banner-text" id="banner-text">Error budget 100% consumed — evidence: trace <a id="banner-trace-link" href="#" class="trace-link">a3f902...</a></span>
+        <button id="banner-dismiss" class="banner-close" aria-label="Dismiss banner">&times;</button>
+      </div>
+    </div>
+
+    <main class="shell">
+      <!-- ─── Topbar / Header ─── -->
+      <header class="topbar" role="banner">
+        <div class="brand">
+          <span class="wordmark">LEASH<span class="brand-dot">.</span></span>
+          <span class="brand-sub">Autonomy Error Budget Gateway</span>
+        </div>
+        <div class="header-meta">
+          <div class="status-indicator">
+            <span class="status-dot" id="status-dot"></span>
+            <span class="status-label" id="status-label">Broker Connected</span>
+          </div>
+          <div class="evidence-tag">
+            Evidence: <strong>SigNoz OTLP</strong>
+          </div>
+        </div>
+      </header>
+
+      <!-- ─── Hero Section ─── -->
+      <section class="hero" aria-labelledby="hero-title">
+        <p class="eyebrow">OBSERVABILITY AS CONTROL INPUT</p>
+        <h1 id="hero-title" class="hero-display">Autonomy is earned.</h1>
+        <p class="hero-sub">LEASH gates your AI agent's permissions behind its own observed downstream reliability — in real time, powered by SigNoz telemetry.</p>
+      </section>
+
+      <!-- ─── Main Instrument Panel Grid ─── -->
+      <div class="instrument-grid">
+
+        <!-- Column 1: State & Gauge -->
+        <section class="panel-section state-panel" aria-labelledby="panel-state-title">
+          <div class="panel-header">
+            <h2 id="panel-state-title" class="section-label">Agent State</h2>
+            <span class="mono-id">release-agent-01</span>
+          </div>
+
+          <!-- Tier Badge Protagonist -->
+          <div class="tier-container">
+            <div id="tier-badge" class="tier-badge granted" data-tier="T3">
+              <span class="tier-badge-text" id="tier-badge-text">T3 · AUTONOMOUS</span>
+            </div>
+            <p class="tier-reason" id="tier-reason">All demo permissions currently active</p>
+          </div>
+
+          <!-- Flat 270° Error Budget Arc Gauge -->
+          <div class="gauge-container">
+            <svg class="gauge-svg" viewBox="0 0 120 120" aria-label="Error budget gauge">
+              <path class="gauge-track" d="M 21.2 98.8 A 50 50 0 1 1 98.8 98.8" />
+              <path id="gauge-arc" class="gauge-fill granted" d="M 21.2 98.8 A 50 50 0 1 1 98.8 98.8" stroke-dasharray="235.6" stroke-dashoffset="0" />
+            </svg>
+            <div class="gauge-center">
+              <span class="gauge-value" id="gauge-value">100</span>
+              <span class="gauge-unit">%</span>
+              <span class="gauge-caption">Budget Remaining</span>
+            </div>
+          </div>
+
+          <!-- Numeric Telemetry Stats -->
+          <div class="telemetry-table">
+            <div class="telemetry-row">
+              <span class="tel-label">Observed Failures</span>
+              <span class="tel-value" id="tel-failures">0</span>
+            </div>
+            <div class="telemetry-row">
+              <span class="tel-label">Alert Threshold</span>
+              <span class="tel-value">3 failures / 5m</span>
+            </div>
+            <div class="telemetry-row">
+              <span class="tel-label">Policy Version</span>
+              <span class="tel-value" id="tel-version">v1</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Column 2: Tier Ladder & Permission Envelope -->
+        <section class="panel-section ladder-panel" aria-labelledby="panel-envelope-title">
+          <div class="panel-header">
+            <h2 id="panel-envelope-title" class="section-label">Autonomy Tier Ladder</h2>
+            <span class="section-hint">Enforced Envelopes</span>
+          </div>
+
+          <!-- Vertical Tier Ladder -->
+          <ol class="tier-ladder" role="list">
+            <li class="ladder-step active" id="rung-t3" data-rung="3">
+              <div class="ladder-marker">
+                <span class="rung-dot"></span>
+              </div>
+              <div class="ladder-content">
+                <div class="ladder-head">
+                  <span class="rung-code">T3</span>
+                  <span class="rung-name">Full Authority</span>
+                  <span class="rung-tag">Destructive Permitted</span>
+                </div>
+                <p class="rung-rule">≥ 98% reliability · read, write, and delete allowed</p>
+              </div>
+            </li>
+            <li class="ladder-step" id="rung-t2" data-rung="2">
+              <div class="ladder-marker">
+                <span class="rung-dot"></span>
+              </div>
+              <div class="ladder-content">
+                <div class="ladder-head">
+                  <span class="rung-code">T2</span>
+                  <span class="rung-name">Write Authority</span>
+                  <span class="rung-tag">Reversible Writes Only</span>
+                </div>
+                <p class="rung-rule">≥ 90% reliability · read and migration writes allowed</p>
+              </div>
+            </li>
+            <li class="ladder-step" id="rung-t1" data-rung="1">
+              <div class="ladder-marker">
+                <span class="rung-dot"></span>
+              </div>
+              <div class="ladder-content">
+                <div class="ladder-head">
+                  <span class="rung-code">T1</span>
+                  <span class="rung-name">Read-Only</span>
+                  <span class="rung-tag">Demoted</span>
+                </div>
+                <p class="rung-rule">Observed failures &gt; threshold · read-only inspection</p>
+              </div>
+            </li>
+            <li class="ladder-step" id="rung-t0" data-rung="0">
+              <div class="ladder-marker">
+                <span class="rung-dot"></span>
+              </div>
+              <div class="ladder-content">
+                <div class="ladder-head">
+                  <span class="rung-code">T0</span>
+                  <span class="rung-name">Quarantined</span>
+                  <span class="rung-tag">Manual Reset Required</span>
+                </div>
+                <p class="rung-rule">Critical safety breach · zero tool execution permitted</p>
+              </div>
+            </li>
+          </ol>
+
+          <!-- Permission Envelope List -->
+          <div class="envelope-box">
+            <h3 class="box-title">Brokered Tool Envelope</h3>
+            <ul class="envelope-list">
+              <li class="envelope-item active" id="env-read" data-min-tier="1">
+                <span class="env-tool">read_release_notes</span>
+                <span class="env-risk risk-read">read</span>
+                <span class="env-req">Requires T1</span>
+              </li>
+              <li class="envelope-item active" id="env-write" data-min-tier="2">
+                <span class="env-tool">apply_migration</span>
+                <span class="env-risk risk-write">write</span>
+                <span class="env-req">Requires T2</span>
+              </li>
+              <li class="envelope-item active" id="env-delete" data-min-tier="3">
+                <span class="env-tool">delete_staging_table</span>
+                <span class="env-risk risk-destructive">destructive</span>
+                <span class="env-req">Requires T3</span>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+
+      <!-- ─── Instrument Controls ─── -->
+      <section class="panel-section controls-panel" aria-labelledby="controls-title">
+        <div class="panel-header">
+          <h2 id="controls-title" class="section-label">Instrument Controls</h2>
+          <span class="section-hint">Step-by-step enforcement sequence</span>
+        </div>
+
+        <div class="controls-grid">
+          <button id="btn-healthy" class="btn btn-primary" data-key="1">
+            <span class="btn-step">1</span>
+            <span class="btn-text">Run healthy release</span>
+            <span class="btn-sub">T3 read + write through broker</span>
+          </button>
+          <button id="btn-inject" class="btn btn-secondary" data-key="2">
+            <span class="btn-step">2</span>
+            <span class="btn-text">Inject migration fault</span>
+            <span class="btn-sub">Poison downstream dependency</span>
+          </button>
+          <button id="btn-failures" class="btn btn-secondary btn-warn" data-key="3">
+            <span class="btn-step">3</span>
+            <span class="btn-text">Run failed migrations</span>
+            <span class="btn-sub">3 attempts emit error spans</span>
+          </button>
+          <button id="btn-delete" class="btn btn-secondary btn-danger" data-key="4">
+            <span class="btn-step">4</span>
+            <span class="btn-text">Request destructive cleanup</span>
+            <span class="btn-sub">DENIED after demotion (403)</span>
+          </button>
+        </div>
+
+        <div class="controls-footer">
+          <button id="btn-alert" class="btn-text-link">
+            Simulate SigNoz alert webhook
+          </button>
+          <span class="divider-dot">·</span>
+          <button id="btn-reset" class="btn-text-link">
+            Reset agent to T3
+          </button>
+          <span class="divider-dot">·</span>
+          <button id="btn-refresh" class="btn-text-link">
+            Refresh policy
+          </button>
+        </div>
+      </section>
+
+      <!-- ─── Live Decision Feed (Tufte Hairline Ledger) ─── -->
+      <section class="panel-section feed-panel" aria-labelledby="feed-title">
+        <div class="panel-header">
+          <h2 id="feed-title" class="section-label">Broker Decision Ledger</h2>
+          <span class="section-hint">Tufte hairline feed — real OTLP traces</span>
+        </div>
+
+        <div class="table-header">
+          <span class="col-status">Verdict</span>
+          <span class="col-action">Tool Request</span>
+          <span class="col-reason">Reasoning / Evidence Trace</span>
+          <span class="col-time">Timestamp</span>
+        </div>
+
+        <ol id="feed-list" class="feed-list" aria-live="polite">
+          <li class="feed-empty">
+            No broker decisions recorded yet. Press <code>1</code> to execute healthy release.
+          </li>
+        </ol>
+      </section>
+
+      <!-- ─── Footer ─── -->
+      <footer class="site-footer" role="contentinfo">
+        <div class="footer-left">
+          <span class="footer-brand">LEASH<span class="brand-dot">.</span></span>
+          <span class="footer-copy">Autonomy is earned, not assumed.</span>
+        </div>
+        <div class="footer-right">
+          <span class="footer-badge">Agents of SigNoz Hackathon</span>
+          <span class="footer-badge">AI Disclosure</span>
+        </div>
+      </footer>
+    </main>
+
+    <script src="/assets/app.js" defer></script>
+  </body>
+</html>

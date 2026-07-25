@@ -1,0 +1,94 @@
+services:
+  leash-broker:
+    build:
+      context: .
+      args:
+        APP_MODULE: services.broker.main
+    environment:
+      POLICY_DB_PATH: /app/data/leash.db
+      MIGRATION_TOOL_URL: http://migration-tool:8000
+      RESOURCE_TOOL_URL: http://resource-tool:8000
+      LEASH_WEBHOOK_TOKEN: ${LEASH_WEBHOOK_TOKEN:?set_in_env}
+      LEASH_ADMIN_TOKEN: ${LEASH_ADMIN_TOKEN:?set_in_env}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${DOCKER_OTEL_EXPORTER_OTLP_ENDPOINT:-host.docker.internal:4317}
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - leash-policy:/app/data
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    mem_limit: 384m
+    cpus: 0.50
+
+  migration-tool:
+    build:
+      context: .
+      args:
+        APP_MODULE: services.migration.main
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${DOCKER_OTEL_EXPORTER_OTLP_ENDPOINT:-host.docker.internal:4317}
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.25
+
+  resource-tool:
+    build:
+      context: .
+      args:
+        APP_MODULE: services.resource.main
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${DOCKER_OTEL_EXPORTER_OTLP_ENDPOINT:-host.docker.internal:4317}
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    mem_limit: 256m
+    cpus: 0.25
+
+  agent-runner:
+    build:
+      context: .
+      args:
+        APP_MODULE: services.agent_runner.main
+    environment:
+      BROKER_URL: http://leash-broker:8000
+      MIGRATION_TOOL_URL: http://migration-tool:8000
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${DOCKER_OTEL_EXPORTER_OTLP_ENDPOINT:-host.docker.internal:4317}
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      leash-broker:
+        condition: service_healthy
+      migration-tool:
+        condition: service_healthy
+      resource-tool:
+        condition: service_healthy
+    restart: unless-stopped
+    mem_limit: 384m
+    cpus: 0.50
+
+volumes:
+  leash-policy:
