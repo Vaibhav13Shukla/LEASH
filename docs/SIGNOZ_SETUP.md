@@ -87,10 +87,21 @@ Threshold: >= 3
 
 ### Notification / Webhook Action
 
+When LEASH is running on the WSL host and SigNoz is running in native Docker
+inside WSL, `localhost` inside the SigNoz container is not the LEASH broker.
+Start LEASH's services with `--host 0.0.0.0`, then calculate the WSL host
+gateway from an Ubuntu shell:
+
+```bash
+HOST_GATEWAY=$(ip route | awk '/default/ {print $3}')
+echo "$HOST_GATEWAY"
+```
+
+Use that value in the SigNoz webhook URL (for example, `172.17.0.1`):
+
 ```text
 Channel Type: Webhook
-URL: http://localhost:18001/webhooks/signoz/demote
-  (Inside Docker Compose network: http://leash-broker:8000/webhooks/signoz/demote)
+URL: http://<HOST_GATEWAY>:18001/webhooks/signoz/demote
 
 Headers:
   X-LEASH-WEBHOOK-TOKEN: <your LEASH_WEBHOOK_TOKEN from .env>
