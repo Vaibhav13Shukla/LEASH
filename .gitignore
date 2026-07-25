@@ -9,3 +9,5 @@ data/
 pours/
 *.log
 node_modules/
+.run/
+.venv-wsl/

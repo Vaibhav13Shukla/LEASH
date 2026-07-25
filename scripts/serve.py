@@ -33,7 +33,7 @@ processes = []
 
 print("[LEASH] Starting LEASH microservices...")
 for name, module, port in services:
-    cmd = [python_exe, "-m", "uvicorn", module, "--host", "127.0.0.1", "--port", str(port)]
+    cmd = [python_exe, "-m", "uvicorn", module, "--host", "0.0.0.0", "--port", str(port)]
     proc = subprocess.Popen(cmd, cwd=root, env=env)
     processes.append((name, proc))
     print(f"  - Started {name} on http://localhost:{port}")

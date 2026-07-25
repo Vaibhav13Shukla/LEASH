@@ -33,7 +33,7 @@ $services = @(
 )
 
 foreach ($service in $services) {
-  Start-Process -FilePath $py -ArgumentList "-m", "uvicorn", $service.Module, "--port", $service.Port -WorkingDirectory $root -WindowStyle Hidden
+  Start-Process -FilePath $py -ArgumentList "-m", "uvicorn", $service.Module, "--host", "0.0.0.0", "--port", $service.Port -WorkingDirectory $root -WindowStyle Hidden
   Write-Host "Started $($service.Name) on port $($service.Port)"
 }
 
