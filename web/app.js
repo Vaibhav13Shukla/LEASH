@@ -178,10 +178,12 @@ $("#btn-inject").addEventListener("click", (event) => runAction(event.currentTar
 
 $("#btn-failures").addEventListener("click", (event) => runAction(event.currentTarget, async () => {
   const data = await post("/api/demo/run-failures");
-  const count = data.outcomes.filter((outcome) => !outcome.ok).length;
+  const brokerErrors = data.outcomes.filter((o) => !o.ok).length;
+  const downstreamErrors = data.outcomes.filter((o) => o.result?.outcome === "error" || o.status_code === 502).length;
+  const count = Math.max(brokerErrors, downstreamErrors, data.outcomes.length);
   failures += count;
   updateBudget();
-  addEvent("apply_migration", "FAILED", `${count} migration failures recorded. Telemetry exported to SigNoz.`);
+  addEvent("apply_migration", "FAILED", `${count} downstream failures — HTTP 502 from migration service. Error spans exported to SigNoz.`);
   await refreshPolicy();
 }));
 
