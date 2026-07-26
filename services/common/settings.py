@@ -12,4 +12,5 @@ ADMIN_TOKEN = env("LEASH_ADMIN_TOKEN", "local-demo-admin-token")
 BROKER_URL = env("BROKER_URL", "http://localhost:8001")
 MIGRATION_TOOL_URL = env("MIGRATION_TOOL_URL", "http://localhost:8002")
 RESOURCE_TOOL_URL = env("RESOURCE_TOOL_URL", "http://localhost:8003")
-POLICY_DB_PATH = env("POLICY_DB_PATH", "./data/leash.db")
+default_db = "/tmp/leash.db" if os.getenv("VERCEL") or not os.access(".", os.W_OK) else "./data/leash.db"
+POLICY_DB_PATH = env("POLICY_DB_PATH", default_db)

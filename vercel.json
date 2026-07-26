@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "web/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/web/$1"
+    },
+    {
+      "src": "/(index\\.html)?",
+      "dest": "/web/index.html"
+    },
+    {
+      "src": "/(api|v1|webhooks|healthz|execute|read_release_notes|delete_staging_table|demo)/(.*)",
+      "dest": "/api/index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.py"
+    }
+  ]
+}
