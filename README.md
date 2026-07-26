@@ -60,17 +60,7 @@ This ensures complete auditability: the agent is not blocked by a prompt rule or
 
 ---
 
-## 3. Name & Meaning
-
-LEASH is pronounced **"leesh"** (rhymes with *teach*).
-
-A leash is not a cage — it is controlled freedom. An autonomous agent may act, but only within the trust boundary its own telemetry has earned. When SigNoz observes downstream failures, the leash tightens automatically.
-
-**Backronym**: *Live Evidence-based Autonomy Safety Harness*
-
----
-
-## 4. Control Loop Architecture
+## 3. Control Loop Architecture
 
 ```mermaid
 flowchart TB
