@@ -73,21 +73,46 @@ A leash is not a cage — it is controlled freedom. An autonomous agent may act,
 ## 4. Control Loop Architecture
 
 ```mermaid
-flowchart LR
-    A[Agent Runner] -->|1. Tool Request| B[LEASH Policy Broker]
-    B -->|2. Query Policy Envelope| DB[(Policy Store SQLite)]
-    B -->|3. Brokered Call| M[Migration Service]
-    B -->|3. Brokered Call| R[Resource Service]
-    A -->|4. OTLP Spans| O[OTel Collector :4317]
-    B -->|4. Policy Decision Spans & Metrics| O
-    M -->|4. Error Spans & HTTP 502| O
-    R -->|4. Resource Spans| O
-    O -->|5. Telemetry Ingest| S[SigNoz Platform]
-    S -->|6. 5m Error Budget Alert| W[Webhook Handler]
-    W -->|7. Demote T3 -> T1| B
+flowchart TB
+    subgraph AGENT["  Agent Layer  "]
+        AR["release-agent-01\nAgent Runner"]
+    end
+
+    subgraph BROKER["  Policy Broker Layer  "]
+        B["LEASH Policy Broker\n/v1/tools/{tool_name}"]
+        PS[("Policy Store\nSQLite — tier · version\ndemotion reason")]
+        WH["Webhook Handler\n/webhooks/signoz/demote\nHMAC token auth"]
+    end
+
+    subgraph TOOLS["  Tool Layer (Downstream Services)  "]
+        MT["Migration Tool\n/execute — fault-injectable"]
+        RT["Resource Tool\n/read_release_notes\n/delete_staging_table"]
+    end
+
+    subgraph OTEL["  Observability Layer  "]
+        OC["OTel Collector\nport 4317 gRPC"]
+        SN["SigNoz Platform\nTraces · Metrics · Logs"]
+        AL["Alert Engine\nleash_tool_calls_total\noutcome=error ≥ 3 in 5m"]
+    end
+
+    AR -->|"① Tool Request\nX-Agent-Id header"| B
+    B <-->|"② Check + update tier"| PS
+    B -->|"③ Brokered call\n(tier sufficient)"| MT
+    B -->|"③ Brokered call\n(tier sufficient)"| RT
+    B -.->|"✗ HTTP 403\nAUTONOMY_TIER_DENIED\n+ trace_id"| AR
+
+    AR -->|"④ OTLP spans"| OC
+    B -->|"④ policy.decision spans\nleash_agent_tier gauge"| OC
+    MT -->|"④ tool.execute spans\nHTTP 502 errors"| OC
+    RT -->|"④ tool.execute spans"| OC
+
+    OC -->|"⑤ Telemetry ingest"| SN
+    SN --> AL
+    AL -->|"⑥ Alert fires\n5m window breach"| WH
+    WH -->|"⑦ Demote T3 → T1\nwrite policy store"| PS
 ```
 
-The system operates as a closed-loop governor: tool requests pass through `leash-broker`, microservices emit OpenTelemetry data to SigNoz, and SigNoz acts as the external sensor that fires policy demotion events back to the broker.
+Seven numbered steps form one closed loop: agent calls the broker (①), broker checks policy (②), brokered tool call executes (③), every service emits OTLP telemetry (④), SigNoz ingests it (⑤), the alert engine evaluates the error budget query and fires (⑥), the webhook demotes the agent's tier before its next privileged call (⑦). The dashed line is the 403 denial path — the only moment the agent sees the enforcement.
 
 ---
 
@@ -99,6 +124,25 @@ The system operates as a closed-loop governor: tool requests pass through `leash
 | **T2** | Write Authority | Read and reversible writes (`apply_migration`) | ≥ 90% observed reliability |
 | **T1** | Read-Only | Read-only inspection (`read_release_notes`) | Failure budget consumed / Demoted |
 | **T0** | Quarantined | Zero tool execution permitted | Safety breach / Manual reset required |
+
+---
+
+## 6. Tech Stack
+
+| Layer | Technology | Role |
+|---|---|---|
+| **Agent Runtime** | Python 3.12 + FastAPI | `release-agent-01` makes tool calls through the broker via HTTP |
+| **Policy Broker** | FastAPI + SQLite | Evaluates tier vs. tool requirement; issues `HTTP 403` with trace evidence |
+| **Policy Store** | SQLite (WAL mode) | Persists tier, version, demotion reason, and alert ID per agent |
+| **Tool Services** | FastAPI ×2 | `migration-tool` and `resource-tool` — fault-injectable downstream services |
+| **Instrumentation** | OpenTelemetry Python SDK | Traces, metrics, and structured logs on every policy decision and tool call |
+| **Telemetry Backend** | SigNoz (self-hosted) | Ingests OTLP on `:4317`; hosts dashboards, alert rules, and webhook delivery |
+| **Alert Transport** | SigNoz Webhook → HMAC-auth endpoint | SigNoz fires alert; broker demotes agent tier in < 10 s |
+| **Fail Behavior** | Fail-open (by design) | If SigNoz is unreachable, agent retains its last known tier — no false lockouts |
+| **Deployment (local)** | Foundry (`casting.yaml`) | Reproducible SigNoz environment; `casting.yaml.lock` committed for judges |
+| **Deployment (cloud)** | Vercel Serverless Python | Unified ASGI entrypoint; live at [leash-beta.vercel.app](https://leash-beta.vercel.app) |
+| **Test Suite** | pytest (20 tests) | Happy path, fault injection, demotion, 403 denial, and admin reset |
+| **Frontend** | Vanilla JS + CSS | Instrument-panel UI — Fraunces + Inter + JetBrains Mono |
 
 ---
 

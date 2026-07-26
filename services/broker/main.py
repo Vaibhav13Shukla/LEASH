@@ -63,6 +63,8 @@ async def execute_tool(tool_name: str, request: Request, x_agent_id: str = Heade
     policy = store.get(x_agent_id)
     current = Tier(int(policy["current_tier"][1:]))
     required = TOOL_TIERS[tool_name]
+    # Fail-open: if SigNoz / webhook is unreachable the agent retains its last
+    # persisted tier rather than being locked out by an observability outage.
 
     with tracer.start_as_current_span("leash.policy.decision") as span:
         span.set_attributes(
