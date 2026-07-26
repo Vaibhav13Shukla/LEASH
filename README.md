@@ -50,6 +50,10 @@ The agent is not blocked by a prompt rule. It is blocked by empirical reliabilit
 
 ## 3. Control Loop Architecture
 
+<p align="center">
+  <img src="docs/assets/leash-architecture.jpg" width="760" alt="LEASH Control Loop Architecture Diagram showing Agent Layer, Policy Broker Layer, Tool Layer, and Observability Layer with closed-loop OTLP telemetry and SigNoz alert webhook feedback" />
+</p>
+
 ```mermaid
 flowchart TB
     subgraph AGENT["  Agent Layer  "]
