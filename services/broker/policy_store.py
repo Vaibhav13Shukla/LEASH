@@ -3,15 +3,15 @@ from __future__ import annotations
 import os
 import sqlite3
 from datetime import UTC, datetime
+from pathlib import Path
+
 
 from services.common.contracts import Tier, tier_name
 
 
 class PolicyStore:
     def __init__(self, db_path: str):
-        directory = os.path.dirname(db_path)
-        if directory:
-            os.makedirs(directory, exist_ok=True)
+        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         self.db_path = db_path
         self._init()
 
@@ -63,9 +63,7 @@ class PolicyStore:
                     "last_alert_id": None,
                     "last_demote_reason": None,
                 }
-            result = dict(row)
-            result["current_tier"] = tier_name(result["current_tier"])
-            return result
+            return {**row, "current_tier": tier_name(row["current_tier"])}
 
     def demote(self, agent_id: str, target_tier: Tier, alert_id: str, reason: str) -> dict:
         before = self.get(agent_id)

@@ -8,7 +8,9 @@ import time
 if sys.stdout.encoding.lower() != 'utf-8':
     sys.stdout.reconfigure(encoding='utf-8')
 
-root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+from pathlib import Path
+
+root = str(Path(__file__).resolve().parents[1])
 sys.path.insert(0, root)
 
 base_port = 18000
@@ -17,8 +19,8 @@ env["PYTHONPATH"] = root
 env["BROKER_URL"] = f"http://localhost:{base_port + 1}"
 env["MIGRATION_TOOL_URL"] = f"http://localhost:{base_port + 2}"
 env["RESOURCE_TOOL_URL"] = f"http://localhost:{base_port + 3}"
-env["LEASH_WEBHOOK_TOKEN"] = env.get("LEASH_WEBHOOK_TOKEN", "local-leash-webhook-2026")
-env["LEASH_ADMIN_TOKEN"] = env.get("LEASH_ADMIN_TOKEN", "local-leash-admin-2026")
+env["LEASH_WEBHOOK_TOKEN"] = env.get("LEASH_WEBHOOK_TOKEN", "local-demo-webhook-token")
+env["LEASH_ADMIN_TOKEN"]   = env.get("LEASH_ADMIN_TOKEN",   "local-demo-admin-token")
 
 python_exe = sys.executable
 
@@ -47,4 +49,8 @@ except KeyboardInterrupt:
     print("\nStopping services...")
     for name, proc in processes:
         proc.terminate()
+        try:
+            proc.wait(timeout=3)
+        except Exception:
+            proc.kill()
     sys.exit(0)

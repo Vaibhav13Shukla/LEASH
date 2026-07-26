@@ -20,7 +20,7 @@ def healthz() -> dict:
 @app.post("/demo/failure")
 def set_failure(payload: dict) -> dict:
     global failure_enabled
-    failure_enabled = bool(payload.get("enabled", False))
+    failure_enabled = payload.get("enabled", False)
     return {"failure_enabled": failure_enabled}
 
 

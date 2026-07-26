@@ -69,7 +69,7 @@ if WEB_DIR.exists():
 # --- Health check ---
 @app.get("/healthz")
 def healthz() -> dict:
-    return {"status": "ok", "vercel": True}
+    return {"status": "ok"}
 
 
 # --- Static Frontend Serving ---
@@ -237,7 +237,7 @@ async def internal_broker_call(tool_name: str, current_task_id: str) -> dict:
             res = execute_migration({"task_id": current_task_id}, AGENT_ID)
             return {"tool": tool_name, "ok": True, "status_code": 200, "result": {"tool": tool_name, "outcome": "success", "status_code": 200, "policy": policy, "result": res}}
         except HTTPException as e:
-            return {"tool": tool_name, "ok": True, "status_code": 200, "result": {"tool": tool_name, "outcome": "error", "status_code": e.status_code, "policy": policy, "result": {"detail": e.detail}}}
+            return {"tool": tool_name, "ok": False, "status_code": e.status_code, "result": {"tool": tool_name, "outcome": "error", "status_code": e.status_code, "policy": policy, "result": {"detail": e.detail}}}
     elif tool_name == "delete_staging_table":
         res = delete_staging_table({"task_id": current_task_id}, AGENT_ID)
         return {"tool": tool_name, "ok": True, "status_code": 200, "result": {"tool": tool_name, "outcome": "success", "status_code": 200, "policy": policy, "result": res}}
