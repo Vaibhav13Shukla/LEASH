@@ -191,7 +191,16 @@ The LEASH Control Room is built around a **flight instrument panel printed on fi
 - **Error Budget Gauge**: A 270-degree SVG dial reflecting real-time budget state ($100\% \rightarrow 0\%$).
 - **Restrained Motion**: On policy denial, the interface applies a precise 120ms horizontal micro-shake and drops an inline crimson alert banner carrying monospace trace evidence.
 
+<p align="center">
+  <img src="docs/assets/leash-ledger.png" width="760" alt="Broker Decision Ledger showing the complete demo narrative: ALLOWED healthy release, FAILED 3 downstream HTTP 502 migrations, REVOKED SigNoz alert demotion T3 to T1, DENIED destructive cleanup with real trace ID 97ad9ee7c6" />
+</p>
+
+<p align="center">
+  <em>Figure 2: The Broker Decision Ledger — one view contains the complete enforcement story. Every row is a real policy decision backed by OTLP telemetry. The DENIED row carries trace ID <code>97ad9ee7c6…</code> — paste it into SigNoz to see the exact failure spans that caused it.</em>
+</p>
+
 ---
+
 
 ## 8. Quick Start & Reproducibility
 
