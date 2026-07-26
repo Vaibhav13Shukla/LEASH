@@ -178,9 +178,7 @@ $("#btn-inject").addEventListener("click", (event) => runAction(event.currentTar
 
 $("#btn-failures").addEventListener("click", (event) => runAction(event.currentTarget, async () => {
   const data = await post("/api/demo/run-failures");
-  const brokerErrors = data.outcomes.filter((o) => !o.ok).length;
-  const downstreamErrors = data.outcomes.filter((o) => o.result?.outcome === "error" || o.status_code === 502).length;
-  const count = Math.max(brokerErrors, downstreamErrors, data.outcomes.length);
+  const count = data.outcomes.length;
   failures += count;
   updateBudget();
   addEvent("apply_migration", "FAILED", `${count} downstream failures — HTTP 502 from migration service. Error spans exported to SigNoz.`);
@@ -202,7 +200,8 @@ $("#btn-delete").addEventListener("click", (event) => runAction(event.currentTar
 
 $("#btn-alert").addEventListener("click", (event) => runAction(event.currentTarget, async () => {
   await post("/api/demo/simulate-alert");
-  addEvent("signoz_alert_demote", "DENIED", "SigNoz alert webhook received; agent demoted to T1");
+  addEvent("signoz_alert_demote", "REVOKED", "SigNoz alert webhook received — agent demoted from T3 to T1 (Read-Only)");
+  showRevokedBanner("SigNoz alert fired — agent autonomy revoked", "signoz-alert");
   await refreshPolicy();
 }));
 
