@@ -25,12 +25,11 @@ Most teams use observability to explain what an AI agent did *after* production 
 
 ## 2. The 30-Second Demo
 
-1. `release-agent-01` starts at **T3 (Full Authority)** — reads release notes, applies migrations. All calls go through.
-2. A downstream migration dependency is fault-injected — starts returning HTTP 502.
-3. All four services emit OpenTelemetry spans and metrics to SigNoz on port `:4317`.
-4. SigNoz evaluates: `sum(leash_tool_calls_total{tool_name="apply_migration", outcome="error"}) >= 3` over 5 minutes. Alert fires.
-5. SigNoz POSTs to `/webhooks/signoz/demote` — agent drops from **T3 → T1 (Read-Only)** in under 10 seconds.
-6. Agent attempts `delete_staging_table`. LEASH intercepts:
+1. `release-agent-01` starts at **T3 (Full Authority)** — reads release notes, applies migrations.
+2. Migration dependency fails (HTTP 502 injected); all services stream OTLP spans and metrics to SigNoz (`:4317`).
+3. SigNoz evaluates: `sum(leash_tool_calls_total{tool_name="apply_migration", outcome="error"}) >= 3` over 5 minutes. Alert fires.
+4. SigNoz POSTs to `/webhooks/signoz/demote` — agent drops from **T3 → T1 (Read-Only)** in under 10 seconds.
+5. Agent attempts `delete_staging_table`. LEASH intercepts:
 
 ```json
 HTTP/1.1 403 Forbidden
